@@ -34,40 +34,42 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kwargs):
         self.write(self.render_str(template, **kwargs))
 
+class Posts(db.Model):
+    title = db.StringProperty(required = True)
+    body = db.TextProperty(required = True)
+    created = db.DateTimeProperty(auto_now_add = True)
+
 class Index(Handler):
     def get(self):
         self.redirect("/blog")
 
 class Blog(Handler):
     def render_blog(self):
-        self.write("Hello!")
+        posts = db.GqlQuery("SELECT * FROM Posts ORDER BY created DESC LIMIT 5")
+        self.render("blog.html", posts=posts)
 
     def get(self):
         self.render_blog()
 
-    def post(self):
-        pass
-        # title = self.request.get('title')
-        # art = self.request.get('art')
-
-        # if title and art:
-        #     a = Art(title=title, art=art)
-        #     a.put()
-
-        #     self.redirect("/")
-        # else:
-        #     error = "we need both a title and some artwork!"
-        #     self.render_front(title, art, error)
-
 class NewPost(Handler):
-    def render_form(self):
-        self.render("newpost.html")
+    def render_form(self, title="", body="", error=""):
+        self.render("newpost.html", title=title, body=body, error=error)
     
     def get(self):
         self.render_form()
 
     def post(self):
-        self.redirect('/')
+        title = self.request.get('title')
+        body = self.request.get('body')
+
+        if title and body:
+            p = Posts(title=title, body=body)
+            p.put()
+
+            self.redirect("/")
+        else:
+            error = "Posts need both a subject and a body!"
+            self.render_form(title, body, error)
 
 class ViewPostHandler(Handler):
     def get(self, id):
