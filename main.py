@@ -65,7 +65,8 @@ class NewPost(Handler):
         if title and body:
             p = Posts(title=title, body=body)
             p.put()
-            self.redirect("/")
+            id_number = p.key().id()
+            self.redirect("/blog/" + str(id_number))
         else:
             error = "Posts need both a subject and a body!"
             self.render_form(title, body, error)
