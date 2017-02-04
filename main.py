@@ -65,15 +65,23 @@ class NewPost(Handler):
         if title and body:
             p = Posts(title=title, body=body)
             p.put()
-
             self.redirect("/")
         else:
             error = "Posts need both a subject and a body!"
             self.render_form(title, body, error)
 
 class ViewPostHandler(Handler):
+    def render_blog(self, id=0):
+        posts = Posts.get_by_id(id)
+        self.render("post.html", posts=posts)
+
     def get(self, id):
-        self.write(id)
+        posts = Posts.get_by_id(int(id))
+        if not posts:
+            self.write("Error, no post by that ID.")
+        else:
+            self.render_blog(int(id))
+
 
 app = webapp2.WSGIApplication([('/', Index), 
                                ('/blog', Blog), 
