@@ -39,12 +39,11 @@ class Index(Handler):
         self.redirect("/blog")
 
 class Blog(Handler):
-    def render_blog():
+    def render_blog(self):
         self.write("Hello!")
 
     def get(self):
-        self.write("Hello!")
-        # self.render_blog()
+        self.render_blog()
 
     def post(self):
         pass
@@ -61,11 +60,11 @@ class Blog(Handler):
         #     self.render_front(title, art, error)
 
 class NewPost(Handler):
-    def render_form():
-        self.write("Hello!")
+    def render_form(self):
+        self.render("newpost.html")
     
     def get(self):
-        self.write("New Post!")
+        self.render_form()
 
     def post(self):
         self.redirect('/')
