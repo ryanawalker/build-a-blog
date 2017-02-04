@@ -79,7 +79,7 @@ class ViewPostHandler(Handler):
     def get(self, id):
         posts = Posts.get_by_id(int(id))
         if not posts:
-            self.write("Error, no post by that ID.")
+            self.render("notfound.html")
         else:
             self.render_blog(int(id))
 
