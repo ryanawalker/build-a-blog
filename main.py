@@ -23,6 +23,9 @@ from google.appengine.ext import db
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
+def get_posts(limit, offset):
+    return list(db.GqlQuery("SELECT * FROM Posts ORDER BY created DESC LIMIT " + str(limit) + " OFFSET " + str(offset)))
+
 class Handler(webapp2.RequestHandler):
     def write(self, *args, **kwargs):
         self.response.out.write(*args, **kwargs)
@@ -44,12 +47,29 @@ class Index(Handler):
         self.redirect("/blog")
 
 class Blog(Handler):
-    def render_blog(self):
-        posts = db.GqlQuery("SELECT * FROM Posts ORDER BY created DESC LIMIT 5")
-        self.render("blog.html", posts=posts)
+    page_size = 5
 
     def get(self):
-        self.render_blog()
+        page = self.request.get('page')
+        page_offset = 0
+        page = page and int(page)
+        if page:
+            page_offset = (page - 1) * self.page_size
+        else:
+            page = 1
+
+        posts = get_posts(self.page_size, page_offset)
+        
+        previous_page = None
+        if page > 1:
+            previous_page = page - 1
+
+        next_page = None
+        if len(posts) == self.page_size and Posts.all().count() > page_offset + self.page_size:
+            next_page = page + 1
+
+        self.render('blog.html', page=page, posts=posts, previous_page=previous_page, next_page=next_page)
+
 
 class NewPost(Handler):
     def render_form(self, title="", body="", error=""):

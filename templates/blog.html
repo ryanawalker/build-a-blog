@@ -13,6 +13,16 @@
         </div>
         <pre class="post-body">{{post.body}}</pre>
     </div>
-{% endfor %}
 
+<br>
+<nav>
+    {% endfor %}
+    {% if previous_page %}
+    <a href="/blog?page={{ previous_page }}">&lt;-- previous page</a>
+    {% endif %}
+
+    {% if next_page %}
+    <a href="/blog?page={{ next_page }}">next page --&gt;</a>
+    {% endif %}
+</nav>
 {% endblock %}
