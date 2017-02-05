@@ -47,25 +47,27 @@ class Index(Handler):
         self.redirect("/blog")
 
 class Blog(Handler):
-    page_size = 5
+    page_limit = 5
 
     def get(self):
         page = self.request.get('page')
         page_offset = 0
-        page = page and int(page)
+        total_posts = Posts.all().count()
+
         if page:
-            page_offset = (page - 1) * self.page_size
+            page = int(page)
+            page_offset = (page - 1) * self.page_limit
         else:
             page = 1
 
-        posts = get_posts(self.page_size, page_offset)
+        posts = get_posts(self.page_limit, page_offset)
         
         previous_page = None
         if page > 1:
             previous_page = page - 1
 
         next_page = None
-        if len(posts) == self.page_size and Posts.all().count() > page_offset + self.page_size:
+        if len(posts) == self.page_limit and total_posts > page_offset + self.page_limit:
             next_page = page + 1
 
         self.render('blog.html', page=page, posts=posts, previous_page=previous_page, next_page=next_page)
